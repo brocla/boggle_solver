@@ -49,7 +49,8 @@ def cli(letters, size):
     game = Boggle(letters=''.join(letters), size=size)
     game.display_board()
     words2 = game.find_words()
-    print(len(words2), "words found:", sorted(words2, key=len))
+    click.secho(f"{len(words2)} words found:", fg='yellow')
+    click.secho(sorted(words2, key=len))
 
 
 def false():
@@ -76,6 +77,7 @@ class Boggle:
         self.visited = self.form_board(false())
 
         if not self.dictionary:
+            import os
             self.dictionary = Trie.load_from_file("trie.pkl")
 
     
@@ -89,6 +91,9 @@ class Boggle:
             letters = letters.replace('qu', '5')
             letters = list(letters)
             letters[letters.index('5')] = 'qu'
+
+        if 'q' in letters:
+            raise ValueError(f"'Q' without a 'u'.")
 
         if len(letters) != self.size * self.size:
             raise ValueError(f"{len(letters)} letters cannot be formatted into a {self.size}x{self.size} board")
@@ -151,8 +156,8 @@ class Boggle:
 
     def display_board(self):
         for row in self.board:
-            print(" ".join(row))
-        print()
+            click.echo(" ".join(row))
+        click.echo()
 
 
 
