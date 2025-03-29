@@ -90,6 +90,10 @@ class Trie:
 
 if __name__ == "__main__":
         
+    ### Be Careful. Creating a pickle file from __main__ will give Attribute errors if a module tries to load it.
+    ### Use Make_trie_dict.py to make the actual file.
+    ### kcb 3/2025
+
     # Example usage:
     # words = ["hello", "world", "hi", "her", "hero", "heros", "quiet", "disqualify"]
     words = open('words.txt').read().split()

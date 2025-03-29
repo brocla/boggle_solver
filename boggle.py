@@ -22,6 +22,10 @@ import random
 from trie import Trie, TrieNode
 import click
 
+# import __main__
+# __main__.Trie = Trie
+# __main__.TrieNode = TrieNode
+
 
 # TODO: Write tests
 # NOTE: The dictionary is lowercase, so the board gets translated to lowercase too.
@@ -34,6 +38,7 @@ CUBES = [
     "IOTMUC", "ERTTYL", "RYVDEL", "TOESSI",
     "LREIXD", "TERWHV", "EIUNES", ("N", "U", "I", "H", "M", "Qu"),
 ]
+
 
 
 @click.command()
@@ -70,6 +75,7 @@ class Boggle:
         self.visited = self.form_board(false())
 
         if not self.dictionary:
+            print(type(self.dictionary))
             self.dictionary = Trie.load_from_file("trie.pkl")
 
     
@@ -147,6 +153,7 @@ class Boggle:
         for row in self.board:
             print(" ".join(row))
         print()
+
 
 
 if __name__ == "__main__":
