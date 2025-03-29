@@ -11,6 +11,9 @@ class Trie:
     def __init__(self):
         self.root = TrieNode()
 
+    def __bool__(self):
+        return bool(self.root.children)
+    
     def insert(self, word):
         current_node = self.root
         Qu = False

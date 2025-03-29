@@ -1,8 +1,14 @@
 #!/usr/bin/python
 """Solve Boggle game
 
+## Usage: boggle.py [OPTIONS] [LETTERS]...
+
+Options:
+  --size INTEGER  
+  --help        
+
 ## Example
-    `python .\boggle lnto epro stie nesi`
+    `python.py lnto epro stie nesi`
 
     
 Default is a 4x4 board. Option -size overrides
@@ -14,7 +20,7 @@ The trie.py program is provided to format dictionaries.
 """
 import random
 from trie import Trie, TrieNode
-from argparse import ArgumentParser
+import click
 
 
 # TODO: Write tests
@@ -30,13 +36,11 @@ CUBES = [
 ]
 
 
-def main():
-    parser = ArgumentParser()
-    parser.add_argument("letters", metavar='N', nargs="*", type=str)
-    parser.add_argument("--size", type=int, default=4)
-    args = parser.parse_args()
-
-    game = Boggle(letters=''.join(args.letters), size=args.size)
+@click.command()
+@click.option('--size', type=int, default=4)
+@click.argument('letters', nargs=-1, type=str)
+def cli(letters, size):
+    game = Boggle(letters=''.join(letters), size=size)
     game.display_board()
     words2 = game.find_words()
     print(len(words2), "words found:", sorted(words2, key=len))
@@ -52,7 +56,7 @@ class Boggle:
 
     # the boggle dictionary is large, and slow to load.
     # Share a single copy among all instances.
-    dictionary = None
+    dictionary = Trie()
 
     def __init__(self, size=4, letters=None):
         self.size = size
@@ -102,7 +106,7 @@ class Boggle:
         for i in range(self.size):
             for j in range(self.size):
                 first_letter = self.board[i][j]
-                candidates = self.dictionary.root.children
+                candidates = Boggle.dictionary.root.children
                 self.search_word(i, j, candidates[first_letter], first_letter, found_words)
         return found_words
 
@@ -146,4 +150,4 @@ class Boggle:
 
 
 if __name__ == "__main__":
-    main()
+    cli()
