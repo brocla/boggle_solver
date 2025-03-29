@@ -69,8 +69,8 @@ class Boggle:
             self.board = self.form_board(self.generate_random_boggle_letters())
         self.visited = self.form_board(false())
 
-        if not Boggle.dictionary:
-            Boggle.dictionary = Trie.load_from_file("trie.pkl")
+        if not self.dictionary:
+            self.dictionary = Trie.load_from_file("trie.pkl")
 
     
 
@@ -106,7 +106,7 @@ class Boggle:
         for i in range(self.size):
             for j in range(self.size):
                 first_letter = self.board[i][j]
-                candidates = Boggle.dictionary.root.children
+                candidates = self.dictionary.root.children
                 self.search_word(i, j, candidates[first_letter], first_letter, found_words)
         return found_words
 
