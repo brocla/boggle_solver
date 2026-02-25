@@ -3,24 +3,27 @@
 Check if a word can be formed using the letters on a Boggle board.
 ## Usage: is-boggleable.py [WORD]...
 # Example:
-    `python is-boggleable.py sweater bookkeeper successful parallel assessment inaccessibility jinx
+    `python is-boggleable.py sweater bookkeeper successful parallel assessment inaccessibility jinx`
 """
-from collections import Counter
+
+from trie import boggle_chars
 
 # Boggle dice configuration.
-# Each list item represents a six-sided die from the Boggle game. 
+# Each list item represents a six-sided die from the Boggle game.
+# The last die has "Qu" as a single face, matching the real Boggle game.
 boggle_dice = [
     "AEANEG", "WNGEEH", "AHSPCO", "LNHNRZ",
     "ASPFFK", "TSTIYD", "OBJOAB", "OWTOAT",
     "IOTMUC", "ERTTYL", "RYVDEL", "TOESSI",
-    "LREIXD", "TERWHV", "EIUNES", "NUIHMQ"
+    "LREIXD", "TERWHV", "EIUNES", ("N", "U", "I", "H", "M", "Qu")
 ]
 
-# Convert each die face into a set of characters
-dice_faces = [set(die.lower()) for die in boggle_dice]
-
-# Special case for the "Qu" die face
-qu_face = {'Q', 'U'}
+# Convert each die into a set of faces (lowercased).
+# String dice become single-char sets; the tuple die preserves "qu" as one face.
+dice_faces = [
+    {face.lower() for face in die}
+    for die in boggle_dice
+]
 
 def can_form_word(word):
     """Return True if the word can be spelled using the 16 Boggle dice.
@@ -30,7 +33,10 @@ def can_form_word(word):
     search tries each available die for the current letter, recurses on the
     rest of the word, and undoes the choice if it leads to a dead end.
     """
-    word = word.lower()
+    try:
+        chars = list(boggle_chars(word.lower()))
+    except ValueError:
+        return False
 
     def backtrack(index, used):
         """Recursively assign dice to letters starting at index.
@@ -41,22 +47,22 @@ def can_form_word(word):
         and the next candidate die is tried. This exhaustive search guarantees
         a solution is found if one exists.
         """
-        if index == len(word):
+        if index == len(chars):
             return True
-        char = word[index]
-        
+        char = chars[index]
+
         # Iterate over each die face
         for i, face in enumerate(dice_faces):
-            if i not in used and (char in face or (char == 'Q' and qu_face <= face)):
+            if i not in used and char in face:
                 # Use this die face
                 used.add(i)
                 if backtrack(index + 1, used):
                     return True
                 # Backtrack
                 used.remove(i)
-        
+
         return False
-    
+
     # Start backtracking from the first character of the word
     return backtrack(0, set())
 

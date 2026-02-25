@@ -21,7 +21,14 @@ def test_each_die_has_6_faces():
 
 def test_dice_faces_matches_boggle_dice():
     for i, die in enumerate(boggle_dice):
-        assert dice_faces[i] == set(die.lower())
+        assert dice_faces[i] == {face.lower() for face in die}
+
+
+def test_last_die_has_qu_as_single_face():
+    # The last die models "Qu" as one face, matching real Boggle
+    last_faces = dice_faces[-1]
+    assert "qu" in last_faces
+    assert "q" not in last_faces
 
 
 # --- Words that CAN be formed (from expected output in the file) ---
@@ -35,8 +42,7 @@ def test_dice_faces_matches_boggle_dice():
     "quiet",
     "Quintessential",
     "Quarantineable",
-
-
+    "ubiquitous",
 ])
 def test_formable_words(word):
     assert can_form_word(word) is True
@@ -79,8 +85,9 @@ def test_word_using_all_16_dice():
     # AEANEG->a, WNGEEH->w, AHSPCO->h, LNHNRZ->n,
     # ASPFFK->f, TSTIYD->t, OBJOAB->b, OWTOAT->o,
     # IOTMUC->m, ERTTYL->y, RYVDEL->v, TOESSI->s,
-    # LREIXD->x, TERWHV->r, EIUNES->u, NUIHMQ->q
-    word = "awhnftbomyvsxruq"
+    # LREIXD->x, TERWHV->r, EIUNES->u, (N,U,I,H,M,Qu)->qu
+    # Note: "qu" from the last die counts as one face but two letters
+    word = "awhnftbomyvsxruqu"
     assert can_form_word(word) is True
 
 
@@ -97,21 +104,26 @@ def test_backtracking_fails_when_dice_exhausted():
     assert can_form_word("eeeeeeeee") is False
 
 
-# --- Qu handling (possible dormant bug) ---
+# --- Qu handling ---
 
-def test_qu_word_lowercase():
-    # "quiet" is lowercase — the Qu special-case path (char == 'Q') on line 50
-    # only triggers for uppercase 'Q', while dice_faces are lowercase.
-    # If the Qu code path is dead, this still passes because 'q' matches
-    # the NUIHMQ die (lowercased to {'n','u','i','h','m','q'}) as a normal letter.
-    # This test documents that "quiet" works, but does NOT prove the Qu path fires.
+def test_qu_uses_one_die():
+    # "quiet" uses the Qu die for 'qu', then separate dice for i, e, t.
+    # That's 4 dice total, not 5.
     assert can_form_word("quiet") is True
 
 
-def test_uppercase_words_are_normalized():
-    # With word.lower() on entry, uppercase input now works correctly.
-    # The Qu special case (char == 'Q', qu_face) is STILL dead code:
-    # since the word is lowercased first, char is never uppercase 'Q'.
-    # The word matches purely through normal lowercase letter matching.
+def test_qu_word_uppercase():
     assert can_form_word("QUIET") is True
     assert can_form_word("JINX") is True
+
+
+def test_q_without_u_returns_false():
+    # Words with Q not followed by U are rejected (boggle_chars raises ValueError)
+    assert can_form_word("qi") is False
+
+
+def test_qu_frees_u_die_for_other_letters():
+    # Since "qu" is one face on one die, the 'u' on the EIUNES die
+    # and the 'u' on the Qu die itself are still available for other letters.
+    # "quorum" = qu(Qu die) + o + r + u(separate die) + m
+    assert can_form_word("quorum") is True
