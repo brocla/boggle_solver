@@ -18,17 +18,14 @@ Note: Enter Qu as if it were a single letter.
 The trie.py program is provided to format dictionaries.
 
 """
+import click
+from itertools import repeat
 import random
 from trie import Trie, TrieNode
-import click
 
-### hack that I don't need anymore
-# import __main__
-# __main__.Trie = Trie
-# __main__.TrieNode = TrieNode
+DIRECTIONS = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
 
-# TODO: Write tests
 # NOTE: The dictionary is lowercase, so the board gets translated to lowercase too.
 
 # these are the actual distributions of letters on official 4x4 Boggle cubes
@@ -41,16 +38,15 @@ CUBES = [
 ]
 
 
-
 @click.command()
 @click.option('--size', type=int, default=4)
 @click.argument('letters', nargs=-1, type=str)
 def cli(letters, size):
     game = Boggle(letters=''.join(letters), size=size)
     game.display_board()
-    words2 = game.find_words()
-    click.secho(f"{len(words2)} words found:", fg='yellow')
-    click.secho(sorted(words2, key=len))
+    words = game.find_words()
+    click.secho(f"{len(words)} words found:", fg='yellow')
+    click.secho(sorted(words, key=len))
 
 
 def false():
@@ -74,23 +70,22 @@ class Boggle:
             self.board = self.form_board(self.load(letters))
         else:
             self.board = self.form_board(self.generate_random_boggle_letters())
-        self.visited = self.form_board(false())
+        self.visited = self.form_board(repeat(False))
 
         if not self.dictionary:
-            import os
             self.dictionary = Trie.load_from_file("trie.pkl")
 
     
 
     def load(self, letters):
         # clean-up the input
-        letters = ''.join([ltr.lower() for ltr in letters if ltr.isalpha()])
+        letters = ''.join(ltr.lower() for ltr in letters if ltr.isalpha())
 
         # make a list of characters where 'qu' is considered a single character
         if 'qu' in letters:
-            letters = letters.replace('qu', '5')
+            letters = letters.replace('qu', '✨')
             letters = list(letters)
-            letters[letters.index('5')] = 'qu'
+            letters[letters.index('✨')] = 'qu'
 
         if 'q' in letters:
             raise ValueError(f"'Q' without a 'u'.")
@@ -134,24 +129,22 @@ class Boggle:
 
         self.visited[x][y] = True
 
-        for dx in [-1, 0, 1]:
-            for dy in [-1, 0, 1]:
-                if dx or dy:
-                    nx, ny = x + dx, y + dy
+        for (dx, dy) in DIRECTIONS:
+            nx, ny = x + dx, y + dy
 
-                    is_on_grid = (0 <= nx < self.size) and (0 <= ny < self.size)
-                    if not is_on_grid:
-                        continue
+            is_on_grid = (0 <= nx < self.size) and (0 <= ny < self.size)
+            if not is_on_grid:
+                continue
 
-                    next_letter = self.board[nx][ny]
-                    if next_letter in node.children and not self.visited[nx][ny]:
-                        self.search_word(
-                            nx,
-                            ny,
-                            node.children[next_letter],
-                            path + next_letter,
-                            found_words,
-                        )
+            next_letter = self.board[nx][ny]
+            if next_letter in node.children and not self.visited[nx][ny]:
+                self.search_word(
+                    nx,
+                    ny,
+                    node.children[next_letter],
+                    path + next_letter,
+                    found_words,
+                )
         self.visited[x][y] = False
 
     def display_board(self):

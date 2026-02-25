@@ -1,3 +1,16 @@
+"""
+This file defines a Trie data structure optimized for Boggle.
+
+Provides insertion, search, serialization via pickle, and display of stored words.
+Words containing 'Q' not followed by 'U' are excluded during insertion.
+
+A 'Trie' is a data structure where each node represents a letter and 
+paths from root to leaf spell out words.
+
+A Trie is efficient for Boggle because it prunes entire branches of invalid prefixes at once,
+rather than checking every word in the dictionary individually.
+"""
+
 import pickle
 
 class TrieNode:
@@ -16,24 +29,24 @@ class Trie:
     
     def insert(self, word):
         current_node = self.root
-        Qu = False
+        expecting_u = False
         for char in word:
 
             # Manage `Qu`
             # Boggle doesn't handle words with Q, not followed by U. exclude them.
-            if Qu and char != 'u':
+            if expecting_u and char != 'u':
                 del current_node
                 return
             
             # have to skip U becasue it has been grouped with previous Q
-            if char == 'u' and Qu:
-                Qu = False
+            if char == 'u' and expecting_u:
+                expecting_u = False
                 continue
 
             # Every Q is grouped with a U
             if char == 'q':
                 char = 'qu'
-                Qu = True
+                expecting_u = True
 
             if char not in current_node.children:
                 current_node.children[char] = TrieNode()
@@ -46,23 +59,23 @@ class Trie:
 
     def search(self, word):
         current_node = self.root
-        Qu = False
+        expecting_u = False
         for char in word:
 
             # Manage `Qu`
             # Boggle doesn't handle words with Q, but not followed by U. ignore them.
-            if Qu and char != 'u':
+            if expecting_u and char != 'u':
                 return
             
             # have to skip U becasue it has been grouped with previous Q
-            if char == 'u' and Qu:
-                Qu = False
+            if char == 'u' and expecting_u:
+                expecting_u = False
                 continue
 
             # Every Q is grouped with a U
             if char == 'q':
                 char = 'qu'
-                Qu = True
+                expecting_u = True
 
             if char not in current_node.children:
                 return False
