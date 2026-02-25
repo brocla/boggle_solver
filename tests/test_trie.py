@@ -93,8 +93,10 @@ def test_qu_in_middle_of_word(trie):
 
 def test_q_not_followed_by_u_is_excluded(trie):
     trie.insert("qi")
-    # search() returns None for Q-without-U words (bare return)
-    assert not trie.search("qi")
+    # insert silently rejects Q-without-U words, so nothing is stored.
+    # search raises ValueError because boggle_chars rejects the input.
+    with pytest.raises(ValueError):
+        trie.search("qi")
 
 
 def test_rejected_q_word_leaves_no_orphan_nodes(trie):
@@ -118,6 +120,27 @@ def test_q_at_end_of_word_is_rejected(trie):
 def test_multiple_qu_words(trie, word):
     trie.insert_words(["quiet", "queen", "quiz", "quote"])
     assert trie.search(word) is True
+
+
+# --- words() ---
+
+def test_words_returns_all_inserted_words(trie):
+    trie.insert_words(["hello", "world", "hi"])
+    assert sorted(trie.words()) == ["hello", "hi", "world"]
+
+
+def test_words_empty_trie(trie):
+    assert list(trie.words()) == []
+
+
+def test_words_includes_qu(trie):
+    trie.insert_words(["quiet", "disqualify"])
+    assert sorted(trie.words()) == ["disqualify", "quiet"]
+
+
+def test_words_with_overlapping_prefixes(trie):
+    trie.insert_words(["her", "hero", "heros"])
+    assert sorted(trie.words()) == ["her", "hero", "heros"]
 
 
 # --- Display ---

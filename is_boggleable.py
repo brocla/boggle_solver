@@ -1,12 +1,9 @@
 #!/usr/bin/python
 """
 Check if a word can be formed using the letters on a Boggle board.
-## Usage: is-boggleable.py [WORD]...
-# Example:
-    `python is-boggleable.py sweater bookkeeper successful parallel assessment inaccessibility jinx`
 """
 
-from trie import boggle_chars
+from helpers import boggle_chars
 
 # Boggle dice configuration.
 # Each list item represents a six-sided die from the Boggle game.
@@ -77,12 +74,3 @@ if __name__ == "__main__":
             print(f"Word '{word}' can be formed.")
         else:
             print(f"Word '{word}' cannot be formed.")
-
-
-    # Word 'sweater' can be formed.
-    # Word 'bookkeeper' cannot be formed.
-    # Word 'successful' cannot be formed.
-    # Word 'parallel' can be formed.
-    # Word 'assessment' can be formed.
-    # Word 'inaccessibility' can be formed.
-    # Word 'jinx' can be formed.

@@ -12,61 +12,41 @@ rather than checking every word in the dictionary individually.
 """
 
 import pickle
-
-
-def boggle_chars(text):
-    """Yield characters from text, combining 'q' and following 'u' into 'qu'.
-
-    Raises ValueError if 'q' appears without a following 'u'.
-
-    >>> list(boggle_chars("quiet"))
-    ['qu', 'i', 'e', 't']
-    >>> list(boggle_chars("disqualify"))
-    ['d', 'i', 's', 'qu', 'a', 'l', 'i', 'f', 'y']
-    """
-    it = iter(text)
-    for char in it:
-        if char == "q":
-            following = next(it, None)
-            if following != "u":
-                raise ValueError("'Q' without a 'u'.")
-            yield "qu"
-        else:
-            yield char
-
+from helpers import boggle_chars
 
 class TrieNode:
-    # __slots__ = ['children', 'is_end_of_word']
+    """A single node in the trie, holding children and an end-of-word flag."""
+
     def __init__(self):
         self.children = {}
         self.is_end_of_word = False
 
+
 class Trie:
-    # __slots__ = ['root']
+    """A prefix tree that stores words using boggle-normalized characters."""
+
     def __init__(self):
         self.root = TrieNode()
 
     def __bool__(self):
+        """Return True if the trie contains any words."""
         return bool(self.root.children)
-    
+
     def _walk(self, word):
         """Walk the trie along the boggle-normalized chars of word.
 
         Returns the node at the end of the path, or None if any
         character is missing or the word has Q without U.
         """
-        try:
-            chars = list(boggle_chars(word))
-        except ValueError:
-            return None
         current_node = self.root
-        for char in chars:
+        for char in boggle_chars(word):
             if char not in current_node.children:
                 return None
             current_node = current_node.children[char]
         return current_node
 
     def insert(self, word):
+        """Add a word to the trie, silently skipping words with Q not followed by U."""
         try:
             chars = list(boggle_chars(word))
         except ValueError:
@@ -79,53 +59,63 @@ class Trie:
         current_node.is_end_of_word = True
 
     def insert_words(self, words):
+        """Insert each word from an iterable into the trie."""
         for word in words:
             self.insert(word)
 
     def search(self, word):
+        """Return True if word is in the trie, False if not."""
         node = self._walk(word)
         if node is None:
             return False
         return node.is_end_of_word
 
-    def display(self):
-        def _display(node, prefix):
+    def words(self):
+        """Yield all words stored in the trie."""
+
+        def _collect(node, prefix):
             if node.is_end_of_word:
-                print(prefix)
-            for char, next_node in node.children.items():
-                _display(next_node, prefix + char)
-       
-        _display(self.root, '')
+                yield prefix
+            for char, child in node.children.items():
+                yield from _collect(child, prefix + char)
+
+        yield from _collect(self.root, "")
+
+    def display(self):
+        """Print all words in the trie, one per line."""
+        print("\n".join(self.words()))
 
     def save_to_file(self, filename):
-        with open(filename, 'wb') as file:
+        """Serialize the trie to a pickle file."""
+        with open(filename, "wb") as file:
             pickle.dump(self, file, protocol=-1)
 
     @staticmethod
     def load_from_file(filename):
-        with open(filename, 'rb') as file:
+        """Load and return a trie from a pickle file."""
+        with open(filename, "rb") as file:
             return pickle.load(file)
 
 
 if __name__ == "__main__":
-        
+
     ### Be Careful. Creating a pickle file from __main__ will give Attribute errors if a module tries to load it.
     ### Use Make_trie_dict.py to make the actual file.
     ### kcb 3/2025
 
     # Example usage:
     # words = ["hello", "world", "hi", "her", "hero", "heros", "quiet", "disqualify"]
-    words = open('words.txt').read().split()
+    words = open("words.txt").read().split()
     trie = Trie()
     trie.insert_words(words)
     # print("Words in Trie:")
     # trie.display()
 
     # Save the Trie to a file
-    trie.save_to_file('trie.pkl')
+    trie.save_to_file("trie.pkl")
 
     # Load the Trie from the file
-    loaded_trie = Trie.load_from_file('trie.pkl')
+    loaded_trie = Trie.load_from_file("trie.pkl")
     # print("\nWords in Loaded Trie:")
     # loaded_trie.display()
 

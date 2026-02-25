@@ -42,16 +42,11 @@ CUBES = [
 @click.option('--size', type=int, default=4)
 @click.argument('letters', nargs=-1, type=str)
 def cli(letters, size):
-    game = Boggle(letters=''.join(letters), size=size)
+    game = Boggle(letters=letters, size=size)
     game.display_board()
     words = game.find_words()
     click.secho(f"{len(words)} words found:", fg='yellow')
     click.secho(sorted(words, key=len))
-
-
-def false():
-    while True:
-        yield False
 
 
 class Boggle:
@@ -113,19 +108,20 @@ class Boggle:
             for j in range(self.size):
                 first_letter = self.board[i][j]
                 candidates = self.dictionary.root.children
-                self.search_word(i, j, candidates[first_letter], first_letter, found_words)
+                if first_letter in candidates:
+                    self.search_word(i, j, candidates[first_letter], first_letter, found_words)
         return found_words
 
 
     def search_word(self, x, y, node, path, found_words):
         """note: recursive dfs"""
 
-        if node.is_end_of_word and len(path) > 2:
-            found_words.add(path)
-
         is_on_grid = (0 <= x < self.size) and (0 <= y < self.size)
         if not is_on_grid or self.visited[x][y]:
             return
+
+        if node.is_end_of_word and len(path) > 2:
+            found_words.add(path)
 
         self.visited[x][y] = True
 

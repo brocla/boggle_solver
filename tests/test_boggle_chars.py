@@ -1,6 +1,6 @@
 import pytest
 
-from boggle_chars import boggle_chars
+from helpers import boggle_chars
 
 
 def test_plain_word():

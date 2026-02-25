@@ -1,11 +1,6 @@
 import pytest
-import importlib
 
-# is-boggleable.py has a hyphen, so we need importlib
-is_boggleable = importlib.import_module("is-boggleable")
-can_form_word = is_boggleable.can_form_word
-boggle_dice = is_boggleable.boggle_dice
-dice_faces = is_boggleable.dice_faces
+from is_boggleable import can_form_word, boggle_dice, dice_faces
 
 
 # --- Module-level constants ---
@@ -43,6 +38,7 @@ def test_last_die_has_qu_as_single_face():
     "Quintessential",
     "Quarantineable",
     "ubiquitous",
+    "unpicturesque",
 ])
 def test_formable_words(word):
     assert can_form_word(word) is True
@@ -54,6 +50,8 @@ def test_formable_words(word):
     "bookkeeper",
     "successful",
     "quiZZical",
+    "strengthlessness",
+
 ])
 def test_unformable_words(word):
     assert can_form_word(word) is False

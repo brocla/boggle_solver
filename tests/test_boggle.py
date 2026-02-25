@@ -1,13 +1,5 @@
 import pytest
-from boggle import Boggle, false, CUBES
-
-# --- false() generator ---
-
-
-def test_false_yields_false_indefinitely():
-    gen = false()
-    for _ in range(100):
-        assert next(gen) is False
+from boggle import Boggle, CUBES
 
 
 # --- Boggle.__init__ ---
@@ -121,6 +113,18 @@ def test_find_words_with_known_board():
     assert "toes" in result
     assert "sine" in result
     assert "rein" in result
+
+
+def test_find_words_with_letter_not_in_trie():
+    # If the dictionary doesn't contain any words starting with a letter
+    # on the board, find_words raises KeyError because it does
+    # candidates[first_letter] without checking membership first.
+    from trie import Trie
+    game = Boggle(size=2, letters="xxxx")
+    game.dictionary = Trie()  # empty trie — no letters at all
+    game.dictionary.insert("hello")  # only 'h' in root children
+    result = game.find_words()  # KeyError: 'x' not in root.children
+    assert isinstance(result, set)
 
 
 def test_find_words_does_not_reuse_same_cell():
