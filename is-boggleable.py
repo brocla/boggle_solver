@@ -30,7 +30,7 @@ def can_form_word(word):
     search tries each available die for the current letter, recurses on the
     rest of the word, and undoes the choice if it leads to a dead end.
     """
-    word_count = Counter(word)
+    word = word.lower()
 
     def backtrack(index, used):
         """Recursively assign dice to letters starting at index.
@@ -46,8 +46,8 @@ def can_form_word(word):
         char = word[index]
         
         # Iterate over each die face
-        for i in range(len(boggle_dice)):
-            if i not in used and (char in dice_faces[i] or (char == 'Q' and qu_face <= dice_faces[i])):
+        for i, face in enumerate(dice_faces):
+            if i not in used and (char in face or (char == 'Q' and qu_face <= face)):
                 # Use this die face
                 used.add(i)
                 if backtrack(index + 1, used):

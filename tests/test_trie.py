@@ -108,11 +108,10 @@ def test_rejected_q_word_leaves_no_orphan_nodes(trie):
     )
 
 
-def test_q_at_end_of_word_is_stored_as_qu(trie):
+def test_q_at_end_of_word_is_rejected(trie):
+    # "suq" ends with Q (no U follows), so it should be rejected entirely
     trie.insert("suq")
-    # When Q is the last letter, it's stored as a 'qu' node (s -> u -> qu)
-    # The Q-without-U rejection only fires when the *next* char isn't 'u'
-    assert "qu" in trie.root.children["s"].children["u"].children
+    assert trie.root.children == {}
 
 
 @pytest.mark.parametrize("word", ["quiet", "queen", "quiz", "quote"])

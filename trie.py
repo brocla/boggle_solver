@@ -13,6 +13,28 @@ rather than checking every word in the dictionary individually.
 
 import pickle
 
+
+def boggle_chars(text):
+    """Yield characters from text, combining 'q' and following 'u' into 'qu'.
+
+    Raises ValueError if 'q' appears without a following 'u'.
+
+    >>> list(boggle_chars("quiet"))
+    ['qu', 'i', 'e', 't']
+    >>> list(boggle_chars("disqualify"))
+    ['d', 'i', 's', 'qu', 'a', 'l', 'i', 'f', 'y']
+    """
+    it = iter(text)
+    for char in it:
+        if char == "q":
+            following = next(it, None)
+            if following != "u":
+                raise ValueError("'Q' without a 'u'.")
+            yield "qu"
+        else:
+            yield char
+
+
 class TrieNode:
     # __slots__ = ['children', 'is_end_of_word']
     def __init__(self):
@@ -27,27 +49,30 @@ class Trie:
     def __bool__(self):
         return bool(self.root.children)
     
-    def insert(self, word):
+    def _walk(self, word):
+        """Walk the trie along the boggle-normalized chars of word.
+
+        Returns the node at the end of the path, or None if any
+        character is missing or the word has Q without U.
+        """
+        try:
+            chars = list(boggle_chars(word))
+        except ValueError:
+            return None
         current_node = self.root
-        expecting_u = False
-        for char in word:
+        for char in chars:
+            if char not in current_node.children:
+                return None
+            current_node = current_node.children[char]
+        return current_node
 
-            # Manage `Qu`
-            # Boggle doesn't handle words with Q, not followed by U. exclude them.
-            if expecting_u and char != 'u':
-                del current_node
-                return
-            
-            # have to skip U becasue it has been grouped with previous Q
-            if char == 'u' and expecting_u:
-                expecting_u = False
-                continue
-
-            # Every Q is grouped with a U
-            if char == 'q':
-                char = 'qu'
-                expecting_u = True
-
+    def insert(self, word):
+        try:
+            chars = list(boggle_chars(word))
+        except ValueError:
+            return
+        current_node = self.root
+        for char in chars:
             if char not in current_node.children:
                 current_node.children[char] = TrieNode()
             current_node = current_node.children[char]
@@ -58,29 +83,10 @@ class Trie:
             self.insert(word)
 
     def search(self, word):
-        current_node = self.root
-        expecting_u = False
-        for char in word:
-
-            # Manage `Qu`
-            # Boggle doesn't handle words with Q, but not followed by U. ignore them.
-            if expecting_u and char != 'u':
-                return
-            
-            # have to skip U becasue it has been grouped with previous Q
-            if char == 'u' and expecting_u:
-                expecting_u = False
-                continue
-
-            # Every Q is grouped with a U
-            if char == 'q':
-                char = 'qu'
-                expecting_u = True
-
-            if char not in current_node.children:
-                return False
-            current_node = current_node.children[char]
-        return current_node.is_end_of_word
+        node = self._walk(word)
+        if node is None:
+            return False
+        return node.is_end_of_word
 
     def display(self):
         def _display(node, prefix):

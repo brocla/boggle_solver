@@ -31,7 +31,12 @@ def test_dice_faces_matches_boggle_dice():
     "parallel",
     "assessment",
     "inaccessibility",
-    "jinx",
+    "Jinx",
+    "quiet",
+    "Quintessential",
+    "Quarantineable",
+
+
 ])
 def test_formable_words(word):
     assert can_form_word(word) is True
@@ -42,6 +47,7 @@ def test_formable_words(word):
 @pytest.mark.parametrize("word", [
     "bookkeeper",
     "successful",
+    "quiZZical",
 ])
 def test_unformable_words(word):
     assert can_form_word(word) is False
@@ -102,11 +108,10 @@ def test_qu_word_lowercase():
     assert can_form_word("quiet") is True
 
 
-def test_qu_word_uppercase_exposes_dead_code():
-    # The Qu special case checks `char == 'Q'` (uppercase) and
-    # `qu_face <= dice_faces[i]` where qu_face = {'Q','U'} (uppercase)
-    # but dice_faces are all lowercase sets.
-    # So the Qu branch can NEVER match — it's dead code.
-    # Uppercase "QUIET" fails because uppercase letters aren't in any
-    # lowercase dice_faces set, confirming the Qu path doesn't help.
-    assert can_form_word("QUIET") is False
+def test_uppercase_words_are_normalized():
+    # With word.lower() on entry, uppercase input now works correctly.
+    # The Qu special case (char == 'Q', qu_face) is STILL dead code:
+    # since the word is lowercased first, char is never uppercase 'Q'.
+    # The word matches purely through normal lowercase letter matching.
+    assert can_form_word("QUIET") is True
+    assert can_form_word("JINX") is True
