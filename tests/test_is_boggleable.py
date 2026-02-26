@@ -51,7 +51,8 @@ def test_formable_words(word):
     "successful",
     "quiZZical",
     "strengthlessness",
-
+    "baby",
+    "babble",
 ])
 def test_unformable_words(word):
     assert can_form_word(word) is False
@@ -116,7 +117,7 @@ def test_qu_word_uppercase():
 
 
 def test_q_without_u_returns_false():
-    # Words with Q not followed by U are rejected (boggle_chars raises ValueError)
+    # Words with Q not followed by U are rejected (normalize_qu raises ValueError)
     assert can_form_word("qi") is False
 
 
