@@ -3,11 +3,8 @@ import sysconfig
 import os
 import sys
 
-# Get site-packages relative to sys.prefix
-# On Windows this gives: Lib\site-packages
-# On Linux/Mac this gives: lib/pythonX.Y/site-packages
-purelib = sysconfig.get_path('purelib')
-rel_purelib = os.path.relpath(purelib, sys.prefix)
+# trie.pkl must land next to trie.py in site-packages
+rel_purelib = os.path.relpath(sysconfig.get_path('purelib'), sys.prefix)
 
 setup(
     name='Boggle',
