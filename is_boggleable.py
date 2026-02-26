@@ -3,24 +3,13 @@
 Check if a word can be formed using the letters on a Boggle board.
 """
 
-from helpers import boggle_chars
-
-# Boggle dice configuration.
-# Each list item represents a six-sided die from the Boggle game.
-# The last die has "Qu" as a single face, matching the real Boggle game.
-boggle_dice = [
-    "AEANEG", "WNGEEH", "AHSPCO", "LNHNRZ",
-    "ASPFFK", "TSTIYD", "OBJOAB", "OWTOAT",
-    "IOTMUC", "ERTTYL", "RYVDEL", "TOESSI",
-    "LREIXD", "TERWHV", "EIUNES", ("N", "U", "I", "H", "M", "Qu")
-]
+import click
+from helpers import normalize_qu, boggle_dice
 
 # Convert each die into a set of faces (lowercased).
 # String dice become single-char sets; the tuple die preserves "qu" as one face.
-dice_faces = [
-    {face.lower() for face in die}
-    for die in boggle_dice
-]
+dice_faces = [{face.lower() for face in die} for die in boggle_dice]
+
 
 def can_form_word(word):
     """Return True if the word can be spelled using the 16 Boggle dice.
@@ -31,7 +20,7 @@ def can_form_word(word):
     rest of the word, and undoes the choice if it leads to a dead end.
     """
     try:
-        chars = list(boggle_chars(word.lower()))
+        chars = list(normalize_qu(word.lower()))
     except ValueError:
         return False
 
@@ -64,13 +53,12 @@ def can_form_word(word):
     return backtrack(0, set())
 
 
-if __name__ == "__main__":
+@click.command()
+@click.argument("word")
+def cli(word):
+    """Check if a word can be formed using the 16 Boggle dice."""
+    click.echo(can_form_word(word))
 
-    # Example usage:
-    words_to_check = ["sweater", "bookkeeper", "successful", "parallel", "assessment", "inaccessibility", "jinx"]
-        
-    for word in words_to_check:
-        if can_form_word(word):
-            print(f"Word '{word}' can be formed.")
-        else:
-            print(f"Word '{word}' cannot be formed.")
+
+if __name__ == "__main__":
+    cli()

@@ -94,7 +94,7 @@ def test_qu_in_middle_of_word(trie):
 def test_q_not_followed_by_u_is_excluded(trie):
     trie.insert("qi")
     # insert silently rejects Q-without-U words, so nothing is stored.
-    # search raises ValueError because boggle_chars rejects the input.
+    # search raises ValueError because normalize_qu rejects the input.
     with pytest.raises(ValueError):
         trie.search("qi")
 

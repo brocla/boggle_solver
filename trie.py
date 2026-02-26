@@ -12,7 +12,11 @@ rather than checking every word in the dictionary individually.
 """
 
 import pickle
-from helpers import boggle_chars
+from helpers import normalize_qu
+import os
+from importlib import resources
+from pathlib import Path
+
 
 class TrieNode:
     """A single node in the trie, holding children and an end-of-word flag."""
@@ -39,7 +43,7 @@ class Trie:
         character is missing or the word has Q without U.
         """
         current_node = self.root
-        for char in boggle_chars(word):
+        for char in normalize_qu(word):
             if char not in current_node.children:
                 return None
             current_node = current_node.children[char]
@@ -48,7 +52,7 @@ class Trie:
     def insert(self, word):
         """Add a word to the trie, silently skipping words with Q not followed by U."""
         try:
-            chars = list(boggle_chars(word))
+            chars = list(normalize_qu(word))
         except ValueError:
             return
         current_node = self.root
@@ -90,12 +94,41 @@ class Trie:
         with open(filename, "wb") as file:
             pickle.dump(self, file, protocol=-1)
 
+    # @staticmethod
+    # def load_from_file(filename):
+    #     """Load and return a trie from a pickle file."""
+    #     with open(filename, "rb") as file:
+    #         return pickle.load(file)
+
+    # @staticmethod
+    # def load_from_file(filename=None):
+    #     """Load and return a trie from a pickle file."""
+    #     if filename is None:
+    #         # Try to find trie.pkl in the package installation directory
+    #         try:
+    #             # For Python 3.9+
+    #             if hasattr(resources, 'files'):
+    #                 trie_path = resources.files('boggle').joinpath('trie.pkl')
+    #                 with resources.as_file(trie_path) as file:
+    #                     with open(file, "rb") as f:
+    #                         return pickle.load(f)
+    #         except (AttributeError, FileNotFoundError):
+    #             pass
+            
+    #         # Fallback: look in the directory where this module is located
+    #         module_dir = os.path.dirname(os.path.abspath(__file__))
+    #         filename = os.path.join(module_dir, 'trie.pkl')
+        
+    #     with open(filename, "rb") as file:
+    #         return pickle.load(file)
+
     @staticmethod
-    def load_from_file(filename):
+    def load_from_file(filename=None):
         """Load and return a trie from a pickle file."""
+        if filename is None:
+            filename = Path(__file__).parent / "trie.pkl"
         with open(filename, "rb") as file:
             return pickle.load(file)
-
 
 if __name__ == "__main__":
 

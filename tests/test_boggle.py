@@ -1,5 +1,5 @@
 import pytest
-from boggle import Boggle, CUBES
+from boggle import Boggle, boggle_dice
 
 
 # --- Boggle.__init__ ---
@@ -11,7 +11,7 @@ def test_board_size_too_small():
 
 
 def test_default_board_is_4x4():
-    game = Boggle(letters="abcdefghijklmnop")
+    game = Boggle(letters="abcd efgh ijkl mnop")
     assert game.size == 4
     assert len(game.board) == 4
     assert all(len(row) == 4 for row in game.board)
@@ -37,6 +37,13 @@ def test_load_lowercases_letters():
     game = Boggle(letters="ABCDEFGHIJKLMNOP")
     flat = [ch for row in game.board for ch in row]
     assert flat == list("abcdefghijklmnop")
+
+
+def test_load_accepts_spaces_between_rows():
+    # Users organize input by rows: boggle lnto epro stie nesi
+    game = Boggle(letters=("lnto", "epro", "stie", "nesi"))
+    flat = [ch for row in game.board for ch in row]
+    assert flat == list("lntoeprosti""enesi")
 
 
 def test_load_strips_non_alpha():
@@ -156,7 +163,7 @@ def test_random_letters_come_from_cubes():
     flat = [ch for row in game.board for ch in row]
     # Each letter should be a lowercase version of a face from CUBES
     all_faces = set()
-    for cube in CUBES:
+    for cube in boggle_dice:
         for face in cube:
             all_faces.add(face.lower())
     for letter in flat:

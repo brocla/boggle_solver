@@ -1,14 +1,14 @@
 #!/usr/bin/python
 """Solve Boggle game
 
-## Usage: boggle.py [OPTIONS] [LETTERS]...
+## Usage: boggle [OPTIONS] [LETTERS]...
 
 Options:
   --size INTEGER  
   --help        
 
 ## Example
-    `python.py lnto epro stie nesi`
+    `boggle lnto epro stie nesi`
 
     
 Default is a 4x4 board. Option -size overrides
@@ -21,36 +21,26 @@ The trie.py program is provided to format dictionaries.
 import click
 from itertools import repeat
 import random
+from helpers import normalize_qu, boggle_dice
 from trie import Trie, TrieNode
 
 DIRECTIONS = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
 
-# NOTE: The dictionary is lowercase, so the board gets translated to lowercase too.
-
-# these are the actual distributions of letters on official 4x4 Boggle cubes
-# Note: Boggle has no solo 'Q', only 'Qu'.
-CUBES = [
-    "AEANEG", "WNGEEH", "AHSPCO", "LNHNRZ",
-    "ASPFFK", "TSTIYD", "OBJOAB", "OWTOAT",
-    "IOTMUC", "ERTTYL", "RYVDEL", "TOESSI",
-    "LREIXD", "TERWHV", "EIUNES", ("N", "U", "I", "H", "M", "Qu"),
-]
-
-
 @click.command()
-@click.option('--size', type=int, default=4)
-@click.argument('letters', nargs=-1, type=str)
+@click.option("--size", type=int, default=4)
+@click.argument("letters", nargs=-1, type=str)
 def cli(letters, size):
+    """Run the Boggle solver from the command line."""
     game = Boggle(letters=letters, size=size)
     game.display_board()
     words = game.find_words()
-    click.secho(f"{len(words)} words found:", fg='yellow')
+    click.secho(f"{len(words)} words found:", fg="yellow")
     click.secho(sorted(words, key=len))
 
 
 class Boggle:
-    """play the classic Boggle word game by Parker Brothers"""
+    """solve the classic Boggle word game by Parker Brothers"""
 
     # the boggle dictionary is large, and slow to load.
     # Share a single copy among all instances.
@@ -60,7 +50,7 @@ class Boggle:
         self.size = size
         if self.size < 2:
             raise ValueError("Board size too small")
-        
+
         if letters:
             self.board = self.form_board(self.load(letters))
         else:
@@ -68,54 +58,47 @@ class Boggle:
         self.visited = self.form_board(repeat(False))
 
         if not self.dictionary:
-            self.dictionary = Trie.load_from_file("trie.pkl")
+            self.dictionary = Trie.load_from_file()
 
-    
+    def load(self, raw_chars):
+        """Parse user input into boggle-normalized letters."""
+        cleaned_chars = [ch.lower() for ch in "".join(raw_chars) if ch.isalpha()]
+        boggle_chars = list(normalize_qu(cleaned_chars))
 
-    def load(self, letters):
-        # clean-up the input
-        letters = ''.join(ltr.lower() for ltr in letters if ltr.isalpha())
+        if len(boggle_chars) != self.size * self.size:
+            raise ValueError(
+                f"{len(boggle_chars)} letters cannot be formatted into a {self.size}x{self.size} board"
+            )
 
-        # make a list of characters where 'qu' is considered a single character
-        if 'qu' in letters:
-            letters = letters.replace('qu', '✨')
-            letters = list(letters)
-            letters[letters.index('✨')] = 'qu'
+        yield from boggle_chars
 
-        if 'q' in letters:
-            raise ValueError(f"'Q' without a 'u'.")
-
-        if len(letters) != self.size * self.size:
-            raise ValueError(f"{len(letters)} letters cannot be formatted into a {self.size}x{self.size} board")
-        
-        yield from iter(letters)
-    
     def form_board(self, letter):
         """make a square matrix from a generator of letters"""
         return [[next(letter) for _ in range(self.size)] for _ in range(self.size)]
 
-
     def generate_random_boggle_letters(self):
-        random.shuffle(CUBES)
+        """Yield random letters by rolling each Boggle cube in shuffled order."""
+        cubes = list(boggle_dice)  # copy to avoid modifying the original
+        random.shuffle(cubes)
         while True:
-            for cube in CUBES:
-                yield random.choice(cube).lower()
-        
-    
+            for cube in cubes:
+                yield random.choice(cube)
+
     def find_words(self):
+        """Return the set of all dictionary words found on the board."""
         found_words = set()
         for i in range(self.size):
             for j in range(self.size):
                 first_letter = self.board[i][j]
                 candidates = self.dictionary.root.children
                 if first_letter in candidates:
-                    self.search_word(i, j, candidates[first_letter], first_letter, found_words)
+                    self.search_word(
+                        i, j, candidates[first_letter], first_letter, found_words
+                    )
         return found_words
 
-
     def search_word(self, x, y, node, path, found_words):
-        """note: recursive dfs"""
-
+        """Recursively explore adjacent cells to find words via DFS."""
         is_on_grid = (0 <= x < self.size) and (0 <= y < self.size)
         if not is_on_grid or self.visited[x][y]:
             return
@@ -125,7 +108,7 @@ class Boggle:
 
         self.visited[x][y] = True
 
-        for (dx, dy) in DIRECTIONS:
+        for dx, dy in DIRECTIONS:
             nx, ny = x + dx, y + dy
 
             is_on_grid = (0 <= nx < self.size) and (0 <= ny < self.size)
@@ -143,11 +126,21 @@ class Boggle:
                 )
         self.visited[x][y] = False
 
+    def to_dict(self):
+        """Return the board and found words as a serializable dictionary."""
+        words = self.find_words()
+        return {
+            "board": self.board,
+            "size": self.size,
+            "words": sorted(words, key=len),
+            "count": len(words),
+        }
+
     def display_board(self):
+        """Print the board grid to the terminal."""
         for row in self.board:
             click.echo(" ".join(row))
         click.echo()
-
 
 
 if __name__ == "__main__":

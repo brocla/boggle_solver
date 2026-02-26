@@ -1,43 +1,43 @@
 import pytest
 
-from helpers import boggle_chars
+from helpers import normalize_qu
 
 
 def test_plain_word():
-    assert list(boggle_chars("hello")) == ["h", "e", "l", "l", "o"]
+    assert list(normalize_qu("hello")) == ["h", "e", "l", "l", "o"]
 
 
 def test_qu_at_start():
-    assert list(boggle_chars("quiet")) == ["qu", "i", "e", "t"]
+    assert list(normalize_qu("quiet")) == ["qu", "i", "e", "t"]
 
 
 def test_qu_in_middle():
-    assert list(boggle_chars("disqualify")) == [
+    assert list(normalize_qu("disqualify")) == [
         "d", "i", "s", "qu", "a", "l", "i", "f", "y",
     ]
 
 
 def test_qu_at_end():
-    assert list(boggle_chars("torqu")) == ["t", "o", "r", "qu"]
+    assert list(normalize_qu("torqu")) == ["t", "o", "r", "qu"]
 
 
 def test_q_without_u_raises():
     with pytest.raises(ValueError, match="Q.*without.*u"):
-        list(boggle_chars("qi"))
+        list(normalize_qu("qi"))
 
 
 def test_q_at_end_of_string_raises():
     with pytest.raises(ValueError, match="Q.*without.*u"):
-        list(boggle_chars("abcq"))
+        list(normalize_qu("abcq"))
 
 
 def test_empty_string():
-    assert list(boggle_chars("")) == []
+    assert list(normalize_qu("")) == []
 
 
 def test_single_non_q_character():
-    assert list(boggle_chars("a")) == ["a"]
+    assert list(normalize_qu("a")) == ["a"]
 
 
 def test_just_qu():
-    assert list(boggle_chars("qu")) == ["qu"]
+    assert list(normalize_qu("qu")) == ["qu"]
