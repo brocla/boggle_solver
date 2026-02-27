@@ -13,7 +13,7 @@ time and abandons a path the moment it leaves the trie — pruning entire
 branches of dead-end prefixes rather than checking every dictionary word.
 
 ```
-$ python boggle.py l n t o e p r o s t i e n e s i
+$ python boggle.py lnto epro stie nesi
 l n t o
 e p r o
 s t i e
@@ -36,19 +36,19 @@ Enter `Qu` as two letters — the program combines them automatically.
 
 A different question from solving a board: given a word, could it *ever*
 appear in a game of Boggle? Each of the 16 dice shows six specific faces, and
-each die may only be used once per word. `can_form_word` solves this
-constraint-satisfaction problem with backtracking — it tries assigning a die
-to each letter, and when it hits a dead end it undoes the last choice and
-tries the next candidate.
+each die may only be used once per word. This is a constraint-satisfaction
+problem solved with backtracking — it tries assigning a die to each letter,
+and when it hits a dead end it undoes the last choice and tries the next
+candidate.
 
 ```
-$ is-boggleable sweater
+$ python is_boggleable.py sweater
 True
 
-$ is-boggleable bookkeeper
+$ python is_boggleable.py bookkeeper
 False
 
-$ is-boggleable quiet
+$ python is_boggleable.py quiet
 True
 ```
 
@@ -100,4 +100,4 @@ $ python make_trie_dict.py
 This reads `words.txt`, inserts every word into a fresh `Trie`, and writes
 `trie.pkl`. Building from `make_trie_dict.py` (rather than from a `__main__`
 block inside `trie.py`) avoids pickle namespace errors when other modules
-load the file.
+load the file.  This tool is only run to create a dictionary from a new list of words.
