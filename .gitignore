@@ -2,3 +2,6 @@
 .venv/
 *.egg-info/
 settings.*
+build/
+setup.py.hold.py
+spelling_bee.py
