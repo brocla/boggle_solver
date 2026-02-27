@@ -23,7 +23,7 @@ s t i e
 n e s i
 
 87 words found:
-['pro', 'opt', 'rep', ...]
+['triplets', 'presents', 'sentries', ...]
 ```
 
 If no letters are given, random letters are rolled from the official Boggle
