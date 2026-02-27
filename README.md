@@ -101,3 +101,15 @@ This reads `words.txt`, inserts every word into a fresh `Trie`, and writes
 `trie.pkl`. Building from `make_trie_dict.py` (rather than from a `__main__`
 block inside `trie.py`) avoids pickle namespace errors when other modules
 load the file.  This tool is only run to create a dictionary from a new list of words.
+
+## MCP Server
+
+`boggle_mcp.py` wraps both the board solver and the boggleability checker as
+a [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server.
+MCP is an open standard that lets large language models like Anthropic's
+Claude call external tools during a conversation. With the server running, an
+LLM can solve a Boggle board or check whether a word is boggleable without
+the user ever leaving the chat — the model invokes the tools directly, gets
+structured results back, and weaves them into its response. This makes it
+easy to build AI-powered workflows on top of the same core algorithms that
+the command-line programs use.

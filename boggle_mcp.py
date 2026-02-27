@@ -10,10 +10,14 @@ mcp = FastMCP("Boggle")
 
 @mcp.tool()
 def solve_boggle(letters: str = "", size: int = 4) -> str:
-    """Solve a Boggle board and return all valid words found.
+    """Generate and/or solve a Boggle board.
+
+    If letters are provided, solves that board. If omitted, generates a
+    random board by rolling the official Boggle dice, then solves it.
+    Returns the board layout and all valid words found.
 
     Args:
-        letters: Board letters (e.g. "lntoeprostienesi"). Leave empty for random.
+        letters: Board letters (e.g. "lntoeprostienesi"). Leave empty to generate a random board.
         size: Board dimension (default 4 for a 4x4 grid).
     """
     game = Boggle(letters=letters or None, size=size)
