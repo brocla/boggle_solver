@@ -13,15 +13,6 @@ boggle_dice = [
     "lreixd", "terwhv", "eiunes", ("n", "u", "i", "h", "m", "qu"),
 ]
 
-# Before 1987, the letter distribution was different.
-pre1987_boggle_dice = [
-    "aaciot", "abilty", ("a", "b", "j", "m", "o", "qu"), "acdemp",
-    "acelrs", "adenvz", "ahmors", "biforx",
-    "denosw", "dknotu", "eefhiy", "egkluy",
-    "egintv", "ehinps", "elpstu", "gilruw",
-]
-
-
 def normalize_qu(text):
     """Yield characters from text, combining 'q' and following 'u' into 'qu'.
 

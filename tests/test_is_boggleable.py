@@ -39,6 +39,10 @@ def test_last_die_has_qu_as_single_face():
     "Quarantineable",
     "ubiquitous",
     "unpicturesque",
+    "battleworthiness",
+    "electrochemistry",
+    "faintheartedness",
+    "imperceptibility",
 ])
 def test_formable_words(word):
     assert can_form_word(word) is True
@@ -53,6 +57,13 @@ def test_formable_words(word):
     "strengthlessness",
     "baby",
     "babble",
+    "fork",
+    "Knife",
+    "job",
+    "banjo",
+    "fake",
+    "Pineapple",
+    "QUATTUORDECILLION ",
 ])
 def test_unformable_words(word):
     assert can_form_word(word) is False
