@@ -1,6 +1,9 @@
 # Boggle
 
-A collection of Python tools for the classic Boggle word game by Parker Brothers.
+A collection of Python tools for the classic Boggle word game by Parker
+Brothers. Beyond the game itself, the project demonstrates two interesting
+programming ideas: a **trie** data structure for fast prefix lookups, and
+**constraint-satisfaction with backtracking** for combinatorial search.
 
 ## Programs
 
